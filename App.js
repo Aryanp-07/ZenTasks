@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StatusBar, View, StyleSheet } from 'react-native';
+import { SafeAreaView, StatusBar, View, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts, SpaceGrotesk_400Regular } from '@expo-google-fonts/space-grotesk';
-import TaskInput from './components/TaskInput';
+import { Ionicons } from '@expo/vector-icons';
 import TaskList from './components/TaskList';
+import AddTaskScreen from './components/AddTaskScreen';
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
+  const [showAddTask, setShowAddTask] = useState(false);
   let [fontsLoaded] = useFonts({
     SpaceGrotesk_400Regular,
   });
@@ -38,6 +40,7 @@ export default function App() {
     const newTasks = [...tasks, { id: Date.now().toString(), title, tags, completed: false, dueDate, createdAt: Date.now() }];
     setTasks(sortTasks(newTasks));
     saveTasks(newTasks);
+    setShowAddTask(false);
   };
 
   const handleUpdateTask = (id, title, tags, dueDate) => {
@@ -78,13 +81,24 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={styles.content}>
-        <TaskInput onAddTask={handleAddTask} />
-        <TaskList
-          tasks={tasks}
-          onUpdateTask={handleUpdateTask}
-          onDeleteTask={handleDeleteTask}
-          onToggleComplete={handleToggleComplete}
-        />
+        {showAddTask ? (
+          <AddTaskScreen onAddTask={handleAddTask} onClose={() => setShowAddTask(false)} />
+        ) : (
+          <>
+            <TaskList
+              tasks={tasks}
+              onUpdateTask={handleUpdateTask}
+              onDeleteTask={handleDeleteTask}
+              onToggleComplete={handleToggleComplete}
+            />
+            <TouchableOpacity
+              style={styles.floatingButton}
+              onPress={() => setShowAddTask(true)}
+            >
+              <Ionicons name="add" size={24} color="#fff" />
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -100,5 +114,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     top: 30,
+  },
+  floatingButton: {
+    position: 'absolute',
+    right: 165,
+    bottom: 80,
+    backgroundColor: '#3B82F6',
+    borderRadius: 30,
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
   },
 });

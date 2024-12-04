@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import CustomDatePicker from './CustomDatePicker';
 
 export default function TaskItem({ task, onUpdateTask, onDeleteTask, onToggleComplete }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -15,10 +15,8 @@ export default function TaskItem({ task, onUpdateTask, onDeleteTask, onToggleCom
     setIsEditing(false);
   };
 
-  const onDateChange = (event, selectedDate) => {
-    const currentDate = selectedDate || editedDueDate;
-    setShowDatePicker(false);
-    setEditedDueDate(currentDate);
+  const handleDateSelect = (date) => {
+    setEditedDueDate(date);
   };
 
   return (
@@ -37,20 +35,17 @@ export default function TaskItem({ task, onUpdateTask, onDeleteTask, onToggleCom
             placeholder="Tags (comma-separated)"
             placeholderTextColor="#9CA3AF"
           />
-          <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-            <Text style={styles.dateButtonText}>
-              {editedDueDate ? editedDueDate.toLocaleString() : 'Set due date (optional)'}
+          <TouchableOpacity style={styles.dateInput} onPress={() => setShowDatePicker(true)}>
+            <Text style={styles.dateInputText}>
+              {editedDueDate ? editedDueDate.toLocaleDateString() : 'Set due date (optional)'}
             </Text>
           </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={editedDueDate || new Date()}
-              mode="datetime"
-              is24Hour={true}
-              display="default"
-              onChange={onDateChange}
-            />
-          )}
+          <CustomDatePicker
+            isVisible={showDatePicker}
+            onClose={() => setShowDatePicker(false)}
+            onSelectDate={handleDateSelect}
+            initialDate={editedDueDate}
+          />
           <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
             <Ionicons name="checkmark-circle-outline" size={24} color="#60A5FA" />
           </TouchableOpacity>
@@ -86,7 +81,7 @@ export default function TaskItem({ task, onUpdateTask, onDeleteTask, onToggleCom
           </View>
           {task.dueDate && (
             <Text style={styles.dueDate}>
-              Due: {new Date(task.dueDate).toLocaleString()}
+              Due: {new Date(task.dueDate).toLocaleDateString()}
             </Text>
           )}
         </View>
@@ -113,11 +108,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: 'SpaceGrotesk_400Regular',
   },
-  dateButton: {
+  dateInput: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#3B82F6',
+    paddingVertical: 15,
     marginBottom: 16,
   },
-  dateButtonText: {
-    color: '#3B82F6',
+  dateInputText: {
+    color: '#9CA3AF',
     fontFamily: 'SpaceGrotesk_400Regular',
   },
   updateButton: {
