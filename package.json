@@ -24,6 +24,7 @@
     "react-dom": "18.3.1",
     "react-native": "0.76.3",
     "react-native-calendars": "^1.1307.0",
+    "react-native-dotenv": "^3.4.11",
     "react-native-web": "~0.19.13",
     "tailwindcss": "^3.4.15"
   },

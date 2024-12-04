@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StatusBar, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StatusBar, View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts, SpaceGrotesk_400Regular } from '@expo-google-fonts/space-grotesk';
 import { Ionicons } from '@expo/vector-icons';
@@ -36,16 +36,24 @@ export default function App() {
     }
   };
 
-  const handleAddTask = (title, tags, dueDate) => {
-    const newTasks = [...tasks, { id: Date.now().toString(), title, tags, completed: false, dueDate, createdAt: Date.now() }];
+  const handleAddTask = (title, tags, dueDate, subtasks) => {
+    const newTasks = [...tasks, { 
+      id: Date.now().toString(), 
+      title, 
+      tags, 
+      completed: false, 
+      dueDate, 
+      createdAt: Date.now(), 
+      subtasks 
+    }];
     setTasks(sortTasks(newTasks));
     saveTasks(newTasks);
     setShowAddTask(false);
   };
 
-  const handleUpdateTask = (id, title, tags, dueDate) => {
+  const handleUpdateTask = (id, title, tags, dueDate, subtasks) => {
     const newTasks = tasks.map(task =>
-      task.id === id ? { ...task, title, tags, dueDate } : task
+      task.id === id ? { ...task, title, tags, dueDate, subtasks } : task
     );
     setTasks(sortTasks(newTasks));
     saveTasks(newTasks);
@@ -81,6 +89,10 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       <View style={styles.content}>
+        <View style={styles.header}>
+          <Image source={require('./assets/Vector.png')} style={styles.logo} />
+          <Text style={styles.companyName}>ZenTasks</Text>
+        </View>
         {showAddTask ? (
           <AddTaskScreen onAddTask={handleAddTask} onClose={() => setShowAddTask(false)} />
         ) : (
@@ -109,6 +121,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
     fontFamily: 'SpaceGrotesk_400Regular',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+    paddingTop: 10,
+  },
+  logo: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
+  companyName: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   content: {
     flex: 1,
