@@ -20,7 +20,13 @@ export default function AddTaskScreen({ onAddTask, onClose }) {
       if (useAI) {
         try {
           const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-          const prompt = `Break down the task: "${title}" into actionable subtasks. Give a maximum of 5 subtasks. The subtasks should not be lengthy sentences, just phrases should do. Also give the subtasks without any number bullets. Let it be plaintext with each subtasks in a new line.`;
+          // const prompt = `If "${title}" begins with the word "list", list the thing the user has asked for. In case of listing, if they mention a number, list that many instead of a hard limit of 5. Otherwise break down the task into actionable subtasks. Give a maximum of 5 subtasks. The subtasks should not be lengthy sentences, just phrases should do. Also give the subtasks without any number bullets. Let it be plaintext with each subtasks in a new line.`;
+          const prompt = `Generate
+You’re a highly skilled task manager AI, designed to efficiently handle requests and break down complex tasks into manageable components. Your goal is to assist users by providing clear and concise lists or subtasks based on their input.
+
+Your task is to process the user's request. If the title given begins with the word "list," you will extract the relevant items and present them as a list. If the user specifies a number, you will list that many items instead of a default of five. If no number is mentioned, break down the task into actionable subtasks, providing a maximum of five subtasks. Ensure that each subtask is a brief phrase and is presented in plaintext format with each on a new line, without any numbering.
+
+User Request: ${title}`
           const result = await model.generateContent(prompt);
           const response = await result.response;
           const text = response.text();
