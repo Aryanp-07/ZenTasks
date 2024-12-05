@@ -5,10 +5,13 @@ import { useFonts, SpaceGrotesk_400Regular } from '@expo-google-fonts/space-grot
 import { Ionicons } from '@expo/vector-icons';
 import TaskList from './components/TaskList';
 import AddTaskScreen from './components/AddTaskScreen';
+import FilterScreen from './components/FilterScreen';
 
 export default function App() {
   const [tasks, setTasks] = useState([]);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [activeFilters, setActiveFilters] = useState([]);
   let [fontsLoaded] = useFonts({
     SpaceGrotesk_400Regular,
   });
@@ -81,6 +84,15 @@ export default function App() {
     });
   };
 
+  const handleFilter = (selectedTags) => {
+    setActiveFilters(selectedTags);
+    setShowFilter(false);
+  };
+
+  const filteredTasks = tasks.filter(task => 
+    activeFilters.length === 0 || task.tags.some(tag => activeFilters.includes(tag))
+  );
+
   if (!fontsLoaded) {
     return null;
   }
@@ -92,13 +104,23 @@ export default function App() {
         <View style={styles.header}>
           <Image source={require('./assets/Vector.png')} style={styles.logo} />
           <Text style={styles.companyName}>ZenTasks</Text>
+          <TouchableOpacity onPress={() => setShowFilter(true)} style={styles.filterButton}>
+            <Ionicons name="filter" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
         {showAddTask ? (
           <AddTaskScreen onAddTask={handleAddTask} onClose={() => setShowAddTask(false)} />
+        ) : showFilter ? (
+          <FilterScreen 
+            onApplyFilters={handleFilter} 
+            onClose={() => setShowFilter(false)}
+            allTags={Array.from(new Set(tasks.flatMap(task => task.tags)))}
+            activeFilters={activeFilters}
+          />
         ) : (
           <>
             <TaskList
-              tasks={tasks}
+              tasks={filteredTasks}
               onUpdateTask={handleUpdateTask}
               onDeleteTask={handleDeleteTask}
               onToggleComplete={handleToggleComplete}
@@ -125,18 +147,21 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 30,
     paddingTop: 10,
   },
   logo: {
     width: 40,
     height: 40,
-    marginRight: 10,
   },
   companyName: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  filterButton: {
+    padding: 5,
   },
   content: {
     flex: 1,
